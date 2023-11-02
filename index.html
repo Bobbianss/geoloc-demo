@@ -8,16 +8,17 @@
 </head>
 <body>
   <script data-consolejs-channel="9bac6074-fabc-1e9e-6ca9-a2f8679b3f9a" src="https://remotejs.com/agent/agent.js"></script>
-<a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-new-camera='gpsMinDistance: 5'></a-camera>
-
+<a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' 
+          renderer='antialias: true; alpha: true'>
+    <a-camera gps-new-camera='gpsMinDistance: 5' far="10"></a-camera>
+    <a-camera gps-projected-camera='simulateLatitude: lat; simulateLongitude: lng' rotation-reader></a-camera>
     <a-assets>
-      <a-asset-item id="musicband" src="./assets/models/musicband-bear/scene.gltf"></a-asset-item>
+      <a-asset-item id="musicband" src="./assets/models/magnemite/scene.gltf"></a-asset-item>
     </a-assets>
-   
     <a-entity gltf-model="#musicband" animation-mixer  
-    gps-new-entity-place="latitude: 45.0673153;longitude: 7.6515326" 
-    scale="0.5 0.5 0.5">></a-entity>
+              gps-new-entity-place="latitude: 45.0673153;longitude: 7.6515326" 
+              scale="0.15 0.15 0.15">></a-entity>
 </a-scene>
 </body>
 </html>
+
