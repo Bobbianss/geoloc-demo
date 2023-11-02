@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   base:'/',
   build: {
-    base:'/',
+    base:'/geoloc-demo/',
     rollupOptions:{
       external: ['public/*'], // specifica il file da escludere dalla build
     },
