@@ -1,123 +1,41 @@
-//import * as THREE from './public/lib/vendor/three.js/build/three.js';
-//import * as THREEx from './public/lib/build/ar-threex-location-only.js'
-function main() {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(80, 2, 0.1, 50000);
-    const renderer = new THREE.WebGLRenderer({ 
-        canvas: document.querySelector('#canvas1') 
-    });
+document.addEventListener('DOMContentLoaded', (event) => {
+    let testEntityAdded = false;
+    let camera = document.querySelector("[gps-new-camera]");
+    let scene;
+    let entity;
 
-    const geom = new THREE.BoxGeometry(20,20,20);
+    if (camera) {
+        camera.addEventListener("gps-camera-update-position", e => {
+            if (!testEntityAdded) {
+                alert(`Got first GPS position: lon ${e.detail.position.longitude} lat ${e.detail.position.latitude}`);
+                
+                // Add a box to the north of the initial GPS position
+                entity = document.createElement("a-gltf-model");
+                entity.setAttribute("scale", {
+                    x: 20, 
+                    y: 20,
+                    z: 20
+                });
+                entity.setAttribute("src", "models/musicband-bear/scene.gltf");
+                entity.setAttribute('gps-new-entity-place', {
+                    latitude: 45.0673153,
+                    longitude: 7.6515326
+                });
 
-    const arjs = new THREEx.LocationBased(scene, camera);
-
-    // You can change the minimum GPS accuracy needed to register a position - by default 1000m
-    //const arjs = new THREEx.LocationBased(scene, camera. { gpsMinAccuracy: 30 } );
-    const cam = new THREEx.WebcamRenderer(renderer, '#video1');
-
-    const mouseStep = THREE.MathUtils.degToRad(5);
-
-
-    let orientationControls;
-
-    // Orientation controls only work on mobile device
-    if (isMobile()){   
-        orientationControls = new THREEx.DeviceOrientationControls(camera);
-    } 
-
-    let fake = null;
-    let first = true;
-
-    arjs.on("gpsupdate", pos => {
-        if(first) {
-            setupObjects(pos.coords.longitude, pos.coords.latitude);
-            first = false;
-        }
-    });
-
-    arjs.on("gpserror", code => {
-        alert(`GPS error: code ${code}`);
-    });
-
-    // Uncomment to use a fake GPS location
-    //fake = { lat: 51.05, lon : -0.72 };
-    if(fake) {
-        arjs.fakeGps(fake.lon, fake.lat);
-    } else {
-        arjs.startGps();
-    } 
-
-
-    let mousedown = false, lastX = 0;
-
-    // Mouse events for testing on desktop machine
-    if(!isMobile()) {
-        window.addEventListener("mousedown", e=> {
-            mousedown = true;
-        });
-
-        window.addEventListener("mouseup", e=> {
-            mousedown = false;
-        });
-
-        window.addEventListener("mousemove", e=> {
-            if(!mousedown) return;
-            if(e.clientX < lastX) {
-                camera.rotation.y += mouseStep; 
-                if(camera.rotation.y < 0) {
-                    camera.rotation.y += 2 * Math.PI;
+                scene = document.querySelector("a-scene");
+                if (scene) {
+                    
+                    scene.appendChild(entity);
                 }
-            } else if (e.clientX > lastX) {
-                camera.rotation.y -= mouseStep;
-                if(camera.rotation.y > 2 * Math.PI) {
-                    camera.rotation.y -= 2 * Math.PI;
-                }
+
+                testEntityAdded = true;
             }
-            lastX = e.clientX;
         });
+    } else {
+        console.error("L'elemento camera non è stato trovato!");
     }
 
-	function isMobile() {
-    	if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        	// true for mobile device
-        	return true;
-    	}
-    	return false;
-	}
-
-    function render(time) {
-        resizeUpdate();
-        if(orientationControls) orientationControls.update();
-        cam.update();
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-
-    function resizeUpdate() {
-        const canvas = renderer.domElement;
-        const width = canvas.clientWidth, height = canvas.clientHeight;
-        if(width != canvas.width || height != canvas.height) {
-            renderer.setSize(width, height, false);
-        }
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-    }
-
-    function setupObjects(longitude, latitude) {
-        // Use position of first GPS update (fake or real)
-        const material = new THREE.MeshBasicMaterial({color: 0xff0000});
-        const material2 = new THREE.MeshBasicMaterial({color: 0xffff00});
-        const material3 = new THREE.MeshBasicMaterial({color: 0x0000ff});
-        const material4 = new THREE.MeshBasicMaterial({color: 0x00ff00});
-        arjs.add(new THREE.Mesh(geom, material), longitude, latitude + 0.001); // slightly north
-        arjs.add(new THREE.Mesh(geom, material2), longitude, latitude - 0.001); // slightly south
-        arjs.add(new THREE.Mesh(geom, material3), longitude - 0.001, latitude); // slightly west
-        arjs.add(new THREE.Mesh(geom, material4), longitude + 0.001, latitude); // slightly east
-    }
-
-    requestAnimationFrame(render);
-}
-
-document.addEventListener("DOMContentLoaded", function(event) {
-    main();
+    console.log("scene=", scene);
+    console.log("camera=", camera);
+    console.log("entity=", entity);
 });
